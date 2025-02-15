@@ -14,6 +14,7 @@ namespace BlazorToaster.Model
         string Message { get; }
 
         bool CloseButton { get; }
-
+        ToastState State { get; }
+        Task SaartAsync();
     }
 }
