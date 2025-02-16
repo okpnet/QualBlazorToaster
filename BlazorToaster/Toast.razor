@@ -1,0 +1,21 @@
+﻿@using BlazorToaster.Model
+@typeparam TArgment
+<ouitoput class="toast @(Model.State==ToastState.Running? "is-active" : "")">
+    @ToastTemplate(Model.Content)
+</ouitoput>
+@code {
+    [Parameter]
+    public IToastModel<TArgment> Model { get; set; } = default!;
+
+    [Parameter,EditorRequired]
+    public RenderFragment<TArgment> ToastTemplate { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(Model is null)
+        {
+            return;
+        }
+        await Model.StartAsync();
+    }
+}

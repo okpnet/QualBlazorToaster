@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Model
 {
-    public interface IToastModelCollsection
+    public interface IToastModelCollsection<T>:IEnumerable<IToastModel<T>>
     {
         int MaxQeueSize { get; }
 
-        Guid Enqueue(IToastModel toastModel);
+        int DefaultCloseTime { get; }
 
-        IToastModel Dequeue();
+        Guid Enqueue(T content);
+
+        Guid Enqueue(T content,int closeTime);
+
+        bool TryDequeue(out IToastModel<T> model);
+
     }
 }

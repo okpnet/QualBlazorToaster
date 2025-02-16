@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Model
 {
-    public interface IToastModel
+    public interface IToastModel<T>
     {
         Guid Id { get; }
-        int CloosedTimer { get; }
+        int ClosedTime { get; }
 
-        string Message { get; }
+        T Content { get; }
 
-        bool CloseButton { get; }
         ToastState State { get; }
-        Task SaartAsync();
+        
+        Task StartAsync();
     }
 }

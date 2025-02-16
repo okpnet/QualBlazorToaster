@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Model
 {
-    public class ToastModel:IToastModel,IDisposable
+    public class ToastModel<T>:IToastModel<T>,IDisposable
     {
         readonly Action _removeAction;
 
@@ -14,28 +14,27 @@ namespace BlazorToaster.Model
 
         public Guid Id { get; }=Guid.NewGuid();
 
-        public int CloosedTimer { get; } = 3000;
+        public int ClosedTime { get; } = 3000;
 
-        public string Message { get; set; } = string.Empty;
-
-        public bool CloseButton { get; set; }
+        public T Content { get; set; } = default!;
 
         public ToastState State => _state;
 
-        public ToastModel(Action removeAction,int cloosedTimer)
+        public ToastModel(Guid id,Action removeAction,T content,int cloosedTimer)
         {
-            CloosedTimer = cloosedTimer;
+            Id = id;
+            ClosedTime = cloosedTimer;
             _removeAction = removeAction;
         }
 
-        public async Task SaartAsync()
+        public async Task StartAsync()
         {
-            if (0 > CloosedTimer)
+            if (0 > ClosedTime)
             {
                 return;
             }
             _state = ToastState.Running;  
-            await Task.Delay(CloosedTimer).ContinueWith(task => 
+            await Task.Delay(ClosedTime).ContinueWith(task => 
             {
                 if (task.Status == TaskStatus.Canceled)
                 {

@@ -1,5 +1,21 @@
-﻿<h3>ToastGroup</h3>
+﻿@using BlazorToaster.Model
 
+@typeparam TArgment 
+
+<spna>
+    @while(Collection.TryDequeue(out var toast))
+    {
+        <Toast ToastTemplate="ToastTemplate" Model="@toast"></Toast>
+    }
+</spna>
 @code {
+    [Parameter]
+    public int DefaultCloseTiem { get; set; }
+
+    [Parameter]
+    public IToastModelCollsection<TArgment> Collection { get; set; } = new ToastCollecion<TArgment>();
+
+    [Parameter]
+    public RenderFragment<TArgment> ToastTemplate{ get; set; }
 
 }
