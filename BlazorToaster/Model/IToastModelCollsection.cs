@@ -12,11 +12,14 @@ namespace BlazorToaster.Model
 
         int DefaultCloseTime { get; }
 
-        Guid Enqueue(T content);
+        void Enqueue(T content);
 
-        Guid Enqueue(T content,int closeTime);
+        void Enqueue(T content,int closeTime);
 
         bool TryDequeue(out IToastModel<T> model);
 
+        void Cancel(T content);
+
+        void Close(T content);
     }
 }

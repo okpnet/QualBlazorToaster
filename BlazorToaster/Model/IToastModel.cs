@@ -14,7 +14,13 @@ namespace BlazorToaster.Model
         T Content { get; }
 
         ToastState State { get; }
-        
+
+        CancellationToken CancelToken { get; }
+
+        void Cancel();
+
+        void Close();
+
         Task StartAsync();
     }
 }

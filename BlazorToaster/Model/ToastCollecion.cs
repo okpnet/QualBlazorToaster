@@ -1,46 +1,50 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
 namespace BlazorToaster.Model
 {
     public class ToastCollecion<T>:IToastModelCollsection<T>,IEnumerable<IToastModel<T>>
     {
-        private List<IToastModel<T>> collection = new();
+        private List<IToastModel<T>> _collection = new();
 
         public int MaxQeueSize { get; set; }
 
         public int DefaultCloseTime { get; set; } = 3000;
 
-        public Guid Enqueue(T content)
+        public void Enqueue(T content)
         {
             var guid= Guid.NewGuid();
-            collection.Add(new ToastModel<T>(guid,()=>collection.RemoveAll(t=>t.Id==guid),content,DefaultCloseTime));
-            return guid;
+            _collection.Add(new ToastModel<T>(guid,()=>_collection.RemoveAll(t=>t.Id==guid),content,DefaultCloseTime));
         }
 
-        public Guid Enqueue(T content, int closeTime)
+        public void Enqueue(T content, int closeTime)
         {
             var guid = Guid.NewGuid();
-            collection.Add(new ToastModel<T>(guid, () => collection.RemoveAll(t => t.Id == guid), content, closeTime));
-            return guid;
+            _collection.Add(new ToastModel<T>(guid, () => _collection.RemoveAll(t => t.Id == guid), content, closeTime));
         }
 
         public bool TryDequeue(out IToastModel<T> model)
         {
-            if (collection.Count == 0)
+            if (_collection.Count == 0)
             {
                 model = default!;
                 return false;
             }
-            model= collection.First();
+            model= _collection.First();
             return true;
         }
 
-        public IEnumerator<IToastModel<T>> GetEnumerator() => collection.GetEnumerator();
+
+        public void Cancel(T content)
+        {
+            _collection.FirstOrDefault(t => Equals(t.Content, content))?.Cancel();
+        }
+
+        public void Close(T content)
+        {
+            _collection.FirstOrDefault(t => Equals(t.Content, content))?.Close();
+        }
+
+        public IEnumerator<IToastModel<T>> GetEnumerator() => _collection.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()=>GetEnumerator();
     }

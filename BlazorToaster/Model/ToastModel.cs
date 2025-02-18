@@ -10,6 +10,8 @@ namespace BlazorToaster.Model
     {
         readonly Action _removeAction;
 
+        readonly CancellationTokenSource _cancellationTokenSource = new();
+
         ToastState _state =ToastState.Stop;
 
         public Guid Id { get; }=Guid.NewGuid();
@@ -19,6 +21,8 @@ namespace BlazorToaster.Model
         public T Content { get; set; } = default!;
 
         public ToastState State => _state;
+
+        public CancellationToken CancelToken => _cancellationTokenSource.Token;
 
         public ToastModel(Guid id,Action removeAction,T content,int cloosedTimer)
         {
@@ -34,14 +38,39 @@ namespace BlazorToaster.Model
                 return;
             }
             _state = ToastState.Running;  
-            await Task.Delay(ClosedTime).ContinueWith(task => 
+            await Task.Delay(ClosedTime,CancelToken).ContinueWith(task => 
             {
-                if (task.Status == TaskStatus.Canceled)
+                if (CancelToken.IsCancellationRequested)
                 {
-                    _state = ToastState.Complete;
-                    Dispose();
+                    _state= ToastState.Stop;
+                    return;
                 }
+                _state = ToastState.Complete;
+                Dispose();
             });
+        }
+
+        public void Cancel()
+        {
+            if (_cancellationTokenSource.Token.IsCancellationRequested || _state!=ToastState.Running)
+            {
+                return;
+            }
+            _cancellationTokenSource.Cancel();
+        }
+
+        public void Close()
+        {
+            if(_state == ToastState.Complete)
+            {
+                return;
+            }
+
+            if (!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Cancel();
+            }
+            _state= ToastState.Complete;
         }
 
         public void Dispose()
