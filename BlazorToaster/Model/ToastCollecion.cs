@@ -33,7 +33,6 @@ namespace BlazorToaster.Model
             return true;
         }
 
-
         public void Cancel(T content)
         {
             _collection.FirstOrDefault(t => Equals(t.Content, content))?.Cancel();

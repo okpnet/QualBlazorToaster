@@ -2,12 +2,12 @@
 
 @typeparam TArgment 
 
-<spna>
+<section class="toast-group">
     @while(Collection.TryDequeue(out var toast))
     {
         <Toast ToastTemplate="ToastTemplate" Model="@toast"></Toast>
     }
-</spna>
+</section>
 @code {
     [Parameter]
     public int DefaultCloseTiem { get; set; }
@@ -15,7 +15,7 @@
     [Parameter]
     public IToastModelCollsection<TArgment> Collection { get; set; } = new ToastCollecion<TArgment>();
 
-    [Parameter]
-    public RenderFragment<TArgment> ToastTemplate{ get; set; }
+    [Parameter, EditorRequired]
+    public RenderFragment<TArgment> ToastTemplate { get; set; } = default!;
 
 }

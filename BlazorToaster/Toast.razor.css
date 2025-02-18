@@ -1,0 +1,47 @@
+﻿
+.toast {
+    --_travel-distance: 0;
+    padding-right: 2.5rem;
+    will-change: transform,opacity;
+    visibility: hidden;
+    opacity: 0;
+}
+
+    .toast.is-active {
+        visibility: visible;
+        opacity: 1;
+        animation: slide-in 0.3s ease, fade-in 0.3s ease;
+    }
+
+    .toast:not(.is-active) {
+        animation: fade-out 0.3s ease;
+    }
+
+    .toast > button.close {
+        top: 0.5rem;
+        right: 0.5rem
+    }
+
+@keyframes fade-in {
+    from {
+        opacity: 0
+    }
+}
+
+@keyframes fade-out {
+    to {
+        opacity: 0
+    }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(var(--_travel-distance, 10px))
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .toast {
+        --_travel-distance: 5vh;
+    }
+}
