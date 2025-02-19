@@ -1,0 +1,30 @@
+﻿@using BlazorToaster
+@using BlazorToaster.Model
+@page "/"
+
+<h1>Hello, world!</h1>
+<div >
+    <button class="button" @onclick="OnClick">add toast</button>
+</div>
+Welcome to your new app.
+<ToastGroup Collection="modelCollsection">
+    <ToastTemplate Context="model">
+        <span>
+            @model.Content.Id.ToString()
+        </span>
+    </ToastTemplate>
+</ToastGroup>
+@code{
+    IToastModelCollsection<Model.ToastMessage> modelCollsection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        modelCollsection = ToastExtension.Factory.Create();
+    }
+
+    Task OnClick()
+    {
+        
+    }
+}

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BlazorToaster.Observe;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +8,15 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Model
 {
-    public class ToastModel<T>:IToastModel<T>,IDisposable
+    public class ToastModel<T>:IToastModel<T>,IDisposable, IToastArg<T>
     {
+        readonly ToastObservable<T> _toastObservable;
+
         readonly Action _removeAction;
 
         readonly CancellationTokenSource _cancellationTokenSource = new();
+
+        EventCallback _closeEvent=EventCallback.Empty;
 
         ToastState _state =ToastState.Stop;
 
@@ -24,11 +30,26 @@ namespace BlazorToaster.Model
 
         public CancellationToken CancelToken => _cancellationTokenSource.Token;
 
+        public IObservable<T> ChangeObservable => _toastObservable;
+
+        public EventCallback CloseEvent 
+        {
+            get
+            {
+                if (Equals(_closeEvent, EventCallback.Empty))
+                {
+                    _closeEvent = EventCallback.Factory.Create(this,Close);
+                }
+                return _closeEvent;
+            }
+        }
+
         public ToastModel(Guid id,Action removeAction,T content,int cloosedTimer)
         {
             Id = id;
             ClosedTime = cloosedTimer;
             _removeAction = removeAction;
+            _toastObservable = new ToastObservable<T>();
         }
 
         public async Task StartAsync()
@@ -46,6 +67,7 @@ namespace BlazorToaster.Model
                     return;
                 }
                 _state = ToastState.Complete;
+                _toastObservable.Run(Content);
                 Dispose();
             });
         }
@@ -71,10 +93,12 @@ namespace BlazorToaster.Model
                 _cancellationTokenSource.Cancel();
             }
             _state= ToastState.Complete;
+            _toastObservable.Run(Content);
         }
 
         public void Dispose()
         {
+            _toastObservable.Dispose();
             _removeAction.Invoke();
         }
     }

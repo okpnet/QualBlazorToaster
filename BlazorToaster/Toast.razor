@@ -1,14 +1,24 @@
 ﻿@using BlazorToaster.Model
+@using BlazorToaster.Observe
+
+@inherits OwningComponentBase
 @typeparam TArgment
-<ouitoput class="toast @(Model.State==ToastState.Running? "is-active" : "")">
-    @ToastTemplate(Model.Content)
-</ouitoput>
+
+@if(Model is not null)
+{
+    <ouitoput class="toast @(Model.State==ToastState.Running? "toast-is-active" : "")">
+        @ToastTemplate((IToastArg<TArgment>)Model)
+    </ouitoput>
+}
+
 @code {
+    IDisposable _changeObservable=default!;
+
     [Parameter]
     public IToastModel<TArgment> Model { get; set; } = default!;
 
     [Parameter,EditorRequired]
-    public RenderFragment<TArgment> ToastTemplate { get; set; }
+    public RenderFragment<IToastArg<TArgment>> ToastTemplate { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -16,6 +26,13 @@
         {
             return;
         }
+        _changeObservable=Model.ChangeObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
         await Model.StartAsync();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        _changeObservable.Dispose();
     }
 }

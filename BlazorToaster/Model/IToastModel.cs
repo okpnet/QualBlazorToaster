@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Model
 {
-    public interface IToastModel<T>
+    public interface IToastModel<T>:IDisposable
     {
         Guid Id { get; }
         int ClosedTime { get; }
@@ -16,6 +16,8 @@ namespace BlazorToaster.Model
         ToastState State { get; }
 
         CancellationToken CancelToken { get; }
+
+        IObservable<T> ChangeObservable { get; }
 
         void Cancel();
 
