@@ -1,21 +1,69 @@
 ﻿@using BlazorToaster.Model
 @typeparam TArgment
-<ouitoput class="toast @(Model.State==ToastState.Running? "toast-is-active" : "")">
-    @ToastTemplate(Model.Content)
-</ouitoput>
+
+@inherits OwningComponentBase
+
+@if(Model is not null)
+{
+    <span>
+        @ToastTemplate(Model.Content)
+        <span>
+            @(Model.State)
+        </span>
+    </span>
+    <ouitoput class="toast @(Model.State==ToastState.Running? "toast-is-active" : "")">
+        @ToastTemplate(Model.Content)
+    </ouitoput>
+}
+
 @code {
+    IDisposable? _disposable;
+
     [Parameter]
-    public IToastModel<TArgment> Model { get; set; } = default!;
+    public IToastModel<TArgment>? Model { get; set; } = default!;
 
     [Parameter,EditorRequired]
     public RenderFragment<TArgment> ToastTemplate { get; set; } = default!;
 
-    protected override async Task OnInitializedAsync()
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     if (Model is not null)
+    //     {
+    //         if (_disposable is not null)
+    //         {
+    //             _disposable.Dispose();
+    //         }
+    //         _disposable = Model.StateChangeObservable.Subscribe(async _ => await InvokeAsync(Changes));
+    //         await Model.StartAsync();
+    //     }
+    // }
+
+    protected override async Task OnParametersSetAsync()
     {
-        if(Model is null)
+        if (Model is not null)
         {
-            return;
+            if (_disposable is not null)
+            {
+                _disposable.Dispose();
+            }
+            _disposable = Model.StateChangeObservable.Subscribe(async _ => await InvokeAsync(Changes));
+            await Model.StartAsync();
         }
-        await Model.StartAsync();
     }
+
+    protected void Changes()
+    {
+        StateHasChanged();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (_disposable is not null)
+        {
+            _disposable.Dispose();
+        }
+    }
+
+
 }

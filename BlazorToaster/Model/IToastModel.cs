@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazorToaster.Observe;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,8 @@ namespace BlazorToaster.Model
         ToastState State { get; }
 
         CancellationToken CancelToken { get; }
+
+        ToastObservable<T> StateChangeObservable { get; }
 
         void Cancel();
 

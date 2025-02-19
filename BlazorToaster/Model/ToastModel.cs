@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazorToaster.Observe;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,9 +25,12 @@ namespace BlazorToaster.Model
 
         public CancellationToken CancelToken => _cancellationTokenSource.Token;
 
+        public ToastObservable<T> StateChangeObservable { get; } = new();
+
         public ToastModel(Guid id,Action removeAction,T content,int cloosedTimer)
         {
             Id = id;
+            Content = content;
             ClosedTime = cloosedTimer;
             _removeAction = removeAction;
         }
@@ -37,17 +41,24 @@ namespace BlazorToaster.Model
             {
                 return;
             }
-            _state = ToastState.Running;  
-            await Task.Delay(ClosedTime,CancelToken).ContinueWith(task => 
-            {
-                if (CancelToken.IsCancellationRequested)
+            _state = ToastState.Running;
+            await Task.Delay(10);
+            StateChangeObservable.Run(Content);
+            await Task.Delay(ClosedTime,CancelToken).
+                ContinueWith(task => 
                 {
-                    _state= ToastState.Stop;
-                    return;
-                }
-                _state = ToastState.Complete;
-                Dispose();
-            });
+                    if (CancelToken.IsCancellationRequested)
+                    {
+                        _state= ToastState.Stop;
+                        StateChangeObservable.Run(Content);
+                        return;
+                    }
+                    _state = ToastState.Complete;
+                    StateChangeObservable.Run(Content);
+                    //Dispose();
+                }).
+                ContinueWith(async _=>await Task.Delay(100)).
+                ContinueWith(_=>Dispose());//待ってから消去
         }
 
         public void Cancel()
@@ -71,6 +82,7 @@ namespace BlazorToaster.Model
                 _cancellationTokenSource.Cancel();
             }
             _state= ToastState.Complete;
+            StateChangeObservable.Run(Content);
         }
 
         public void Dispose()

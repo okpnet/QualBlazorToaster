@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazorToaster.Observe;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace BlazorToaster.Model
         int MaxQeueSize { get; }
 
         int DefaultCloseTime { get; }
+
+        ToastObservable<T> CollectionAddObservable { get; }
 
         void Enqueue(T content);
 

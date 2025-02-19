@@ -7,20 +7,16 @@
     opacity: 0;
 }
 
-    .toast.is-active {
-        visibility: visible;
-        opacity: 1;
-        animation: slide-in 0.3s ease, fade-in 0.3s ease;
-    }
+.toast.toast-is-active {
+    visibility: visible;
+    opacity: 1;
+    animation: slide-in 0.3s ease, fade-in 0.3s ease;
+}
 
-    .toast:not(.is-active) {
-        animation: fade-out 0.3s ease;
-    }
+.toast:not(.toast-is-active) {
+    animation: fade-out 0.3s ease;
+}
 
-    .toast > button.close {
-        top: 0.5rem;
-        right: 0.5rem
-    }
 
 @keyframes fade-in {
     from {

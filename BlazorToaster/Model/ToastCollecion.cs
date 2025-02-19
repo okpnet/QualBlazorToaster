@@ -1,36 +1,62 @@
-﻿using System.Collections;
+﻿using BlazorToaster.Observe;
+using System.Collections;
 
 namespace BlazorToaster.Model
 {
     public class ToastCollecion<T>:IToastModelCollsection<T>,IEnumerable<IToastModel<T>>
     {
+
+        private int index;
+
         private List<IToastModel<T>> _collection = new();
+
+        public ToastObservable<T> CollectionAddObservable { get; }=new();
 
         public int MaxQeueSize { get; set; }
 
         public int DefaultCloseTime { get; set; } = 3000;
 
+        public ToastCollecion()
+        {
+        }
+
         public void Enqueue(T content)
         {
             var guid= Guid.NewGuid();
-            _collection.Add(new ToastModel<T>(guid,()=>_collection.RemoveAll(t=>t.Id==guid),content,DefaultCloseTime));
+            var addItem = new ToastModel<T>(guid, () => _collection.RemoveAll(t => t.Id == guid), content, DefaultCloseTime);
+            addItem.StateChangeObservable.Subscribe((a) => CollectionAddObservable.Run(a));
+            _collection.Add(addItem);
+            CollectionAddObservable.Run(content);
         }
 
         public void Enqueue(T content, int closeTime)
         {
             var guid = Guid.NewGuid();
-            _collection.Add(new ToastModel<T>(guid, () => _collection.RemoveAll(t => t.Id == guid), content, closeTime));
+            var addItem = new ToastModel<T>(guid, () => _collection.RemoveAll(t => t.Id == guid), content, closeTime);
+            addItem.StateChangeObservable.Subscribe((a) => CollectionAddObservable.Run(a));
+            _collection.Add(addItem);
+            CollectionAddObservable.Run(content);
         }
 
         public bool TryDequeue(out IToastModel<T> model)
         {
-            if (_collection.Count == 0)
+            if (_collection.Count == 0 || index >= _collection.Count)
+            {
+                model = default!;
+                index = 0;
+                return false;
+            }
+            try
+            {
+                model = _collection[index];
+                index += 1;
+                return true;
+            }
+            catch (Exception ex)
             {
                 model = default!;
                 return false;
             }
-            model= _collection.First();
-            return true;
         }
 
         public void Cancel(T content)
