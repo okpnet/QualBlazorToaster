@@ -4,7 +4,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>QualBlazorToaster</PackageId>
+    <Title>QualBlazorToaster</Title>
+    <Authors>hayato takahashi</Authors>
+    <RepositoryUrl>https://github.com/okpnet/QualBlazorToaster</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/okpnet/QualBlazorToaster</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyName>qtoaster</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="https:\github.com\okpnet\QualBlazorToaster\blob\main\README.md" />
+  </ItemGroup>
 
 
   <ItemGroup>

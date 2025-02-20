@@ -23,7 +23,7 @@ namespace BlazorToaster.Model
                 try
                 {
                     _readerWriterLockSlim.EnterReadLock();
-                    return _collection.Where(t=>t.State!=ToastState.Complete).Take(Configure.MaxToast);
+                    return _collection.Where(t=>t.State!=ToastState.Removed).Take(Configure.MaxToast);
                 }
                 finally
                 {
@@ -56,7 +56,6 @@ namespace BlazorToaster.Model
             Add(new ToastModel<T>(guid, removeAction, content, closeTime));
         }
         
-        
 
         public void Cancel(T content)
         {
@@ -77,7 +76,6 @@ namespace BlazorToaster.Model
             try
             {
                 _readerWriterLockSlim.EnterWriteLock();
-                model.Dispose();
                 var index=_collection.IndexOf(model);
                 _collection.RemoveAt(index);
             }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Observe
 {
-    public class ToastObservable<T> : IObservable<T>,IDisposable
+    public class ToastObservable<T> : IObservable<T>
     {
         readonly ReaderWriterLockSlim _readerWriterLockSlim;
 
@@ -29,23 +29,7 @@ namespace BlazorToaster.Observe
             {
                 _readerWriterLockSlim.EnterWriteLock();
                 _observablelist.Add(observer);
-                return new ToastObserverDiposable(() =>
-                {
-                    try
-                    {
-                        _readerWriterLockSlim.EnterWriteLock();
-                        var index=_observablelist.IndexOf(observer);
-                        if (0 > index)
-                        {
-                            return;
-                        }
-                        _observablelist.RemoveAt(index);
-                    }
-                    finally
-                    {
-                        _readerWriterLockSlim.ExitReadLock();
-                    }
-                });
+                return new ToastObserverDiposable(() =>Remove(observer));
             }
             finally
             {
@@ -69,18 +53,14 @@ namespace BlazorToaster.Observe
             }
         }
 
-        public void Dispose()
+        private void Remove(IObserver<T> observer)
         {
-            try
+            var index = _observablelist.IndexOf(observer);
+            if (0 > index)
             {
-                _readerWriterLockSlim.EnterWriteLock();
-                _observablelist.Clear();
+                return;
             }
-            finally
-            {
-                _readerWriterLockSlim.ExitWriteLock();
-                _readerWriterLockSlim.Dispose();
-            }
+            _observablelist.RemoveAt(index);
         }
     }
 

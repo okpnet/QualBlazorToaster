@@ -48,6 +48,7 @@ namespace BlazorToaster.Model
         {
             Id = id;
             ClosedTime = cloosedTimer;
+            Content = content;
             _removeAction = removeAction;
             _toastObservable = new ToastObservable<T>();
         }
@@ -58,18 +59,18 @@ namespace BlazorToaster.Model
             {
                 return;
             }
-            _state = ToastState.Running;  
-            await Task.Delay(ClosedTime,CancelToken).ContinueWith(task => 
+            _state = ToastState.Running;
+            await Task.Delay(ClosedTime, CancelToken);
+
+            if (CancelToken.IsCancellationRequested)
             {
-                if (CancelToken.IsCancellationRequested)
-                {
-                    _state= ToastState.Stop;
-                    return;
-                }
-                _state = ToastState.Complete;
-                _toastObservable.Run(Content);
-                Dispose();
-            });
+                return;
+            }
+            _state = ToastState.Complete;
+            _toastObservable.Run(Content);
+            await Task.Delay(1000);
+            _state = ToastState.Removed;
+            Dispose();
         }
 
         public void Cancel()
@@ -98,7 +99,6 @@ namespace BlazorToaster.Model
 
         public void Dispose()
         {
-            _toastObservable.Dispose();
             _removeAction.Invoke();
         }
     }

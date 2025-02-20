@@ -4,21 +4,36 @@
 @inherits OwningComponentBase
 @typeparam TArgment
 
-@if(Model is not null)
-{
-    <ouitoput class="toast @(Model.State==ToastState.Running? "toast-is-active" : "")">
-        @ToastTemplate((IToastArg<TArgment>)Model)
-    </ouitoput>
-}
+<output class="toast @activeClass">
+    @ToastTemplate((IToastArg<TArgment>)Model)
+</output>
 
 @code {
     IDisposable _changeObservable=default!;
 
-    [Parameter]
+    [Parameter,EditorRequired]
     public IToastModel<TArgment> Model { get; set; } = default!;
 
-    [Parameter,EditorRequired]
-    public RenderFragment<IToastArg<TArgment>> ToastTemplate { get; set; }
+    [Parameter, EditorRequired]
+    public RenderFragment<IToastArg<TArgment>> ToastTemplate { get; set; } = default!;
+
+    string activeClass
+    {
+        get
+        {
+            if(Model is null)
+            {
+                return "";
+            }
+            return Model.State switch
+            {
+                ToastState.Stop=>"",
+                ToastState.Running=>"toast-is-active",
+                ToastState.Complete=>"",
+                _=>""
+            };
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,6 +43,15 @@
         }
         _changeObservable=Model.ChangeObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
         await Model.StartAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (Model.State==ToastState.Stop)
+        {
+            await Model.StartAsync();
+        }
     }
 
     protected override void Dispose(bool disposing)

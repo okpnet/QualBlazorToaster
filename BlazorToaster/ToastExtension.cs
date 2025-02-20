@@ -11,12 +11,12 @@ namespace BlazorToaster
     {
         public static class Factory
         {
-            public static IToastModelCollsection<T> Create<T>()
+            public static IToastModelCollsection<T> CreateCollecion<T>()
             {
                 return new ToastCollecion<T>(new ToastConfigure());
             }
 
-            public static IToastModelCollsection<T> Create<T>(ToastConfigure configure)
+            public static IToastModelCollsection<T> CreateCollection<T>(ToastConfigure configure)
             {
                 return new ToastCollecion<T>(configure);
             }

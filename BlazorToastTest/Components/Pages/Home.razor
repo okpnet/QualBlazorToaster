@@ -9,9 +9,9 @@
 Welcome to your new app.
 <ToastGroup Collection="modelCollsection">
     <ToastTemplate Context="model">
-        <span>
-            @model.Content.Id.ToString()
-        </span>
+        <div class="alert alert-warning" role="alert">
+            ID: @model.Content.Id.ToString()
+        </div>
     </ToastTemplate>
 </ToastGroup>
 @code{
@@ -20,11 +20,11 @@ Welcome to your new app.
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        modelCollsection = ToastExtension.Factory.Create();
+        modelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>();
     }
 
-    Task OnClick()
+    void OnClick()
     {
-        
+        modelCollsection.Enqueue(new());  
     }
 }

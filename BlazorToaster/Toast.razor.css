@@ -1,20 +1,23 @@
 ﻿.toast {
+    all: unset;
     --_travel-distance: 0;
     padding-right: 2.5rem;
     will-change: transform,opacity;
-    visibility: hidden; /* 初期状態では非表示 */
+    visibility: hidden;
     opacity: 0;
 }
 
-    .toast.toast-is-active {
-        visibility: visible;
-        opacity: 1;
-        animation: slide-in 0.3s ease, fade-in 0.3s ease;
-    }
+.toast.toast-is-active {
+    visibility: visible;
+    opacity: 0.9;
+    animation: slide-in 0.3s ease, fade-in 0.3s ease;
+}
 
-    .toast:not(.toast-is-active) {
-        animation: fade-out 0.3s ease;
-    }
+.toast:not(.toast-is-active) {
+    opacity: 0.9;
+    animation: fade-out 0.3s ease;
+    animation-fill-mode: forwards;
+}
 
 @keyframes fade-in {
     from {
@@ -23,8 +26,13 @@
 }
 
 @keyframes fade-out {
+    from {
+        visibility: visible;
+    }
+
     to {
-        opacity: 0
+        opacity: 0;
+        visibility: hidden;
     }
 }
 

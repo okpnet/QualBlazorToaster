@@ -10,6 +10,7 @@ namespace BlazorToaster.Model
     {
         Stop,
         Running,
-        Complete
+        Complete,
+        Removed,
     }
 }
