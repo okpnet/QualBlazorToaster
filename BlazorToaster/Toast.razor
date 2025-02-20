@@ -1,9 +1,11 @@
-﻿@using BlazorToaster.Model
+﻿@using BlazorToaster.Core
 @using BlazorToaster.Observe
 
 @inherits OwningComponentBase
 @typeparam TArgment
-
+<span>
+    @Model.State.ToString()
+</span>
 <output class="toast @activeClass">
     @ToastTemplate((IToastArg<TArgment>)Model)
 </output>
@@ -41,8 +43,9 @@
         {
             return;
         }
-        _changeObservable=Model.ChangeObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
+        _changeObservable = Model.ChangeObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
         await Model.StartAsync();
+        await Task.Delay(10);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -51,6 +54,7 @@
         if (Model.State==ToastState.Stop)
         {
             await Model.StartAsync();
+            await Task.Delay(10);
         }
     }
 

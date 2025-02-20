@@ -1,5 +1,5 @@
 ﻿@using BlazorToaster
-@using BlazorToaster.Model
+@using BlazorToaster.Core
 @page "/"
 
 <h1>Hello, world!</h1>
@@ -9,18 +9,23 @@
 Welcome to your new app.
 <ToastGroup Collection="modelCollsection">
     <ToastTemplate Context="model">
-        <div class="alert alert-warning" role="alert">
+@*         @{
+            model.Presentation = PresentationMode.Event;
+        } *@
+        <div class="notification is-info">
+            <button class="delete" @onclick="model.CloseEvent"></button>
             ID: @model.Content.Id.ToString()
         </div>
     </ToastTemplate>
 </ToastGroup>
 @code{
+
     IToastModelCollsection<Model.ToastMessage> modelCollsection;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        modelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>();
+        modelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>(new ToastConfigure(){Duration=5000,MaxToast=10});
     }
 
     void OnClick()

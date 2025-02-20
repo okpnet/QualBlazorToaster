@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorToaster.Model
+namespace BlazorToaster.Core
 {
     public interface IToastArg<T>
     {
@@ -15,5 +15,7 @@ namespace BlazorToaster.Model
         EventCallback CloseEvent { get; }
 
         ToastState State { get; }
+
+        PresentationMode Presentation { get; set; }
     }
 }

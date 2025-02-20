@@ -2,13 +2,15 @@
 using System.Collections;
 using System.Reflection;
 
-namespace BlazorToaster.Model
+namespace BlazorToaster.Core
 {
-    public class ToastCollecion<T>:IToastModelCollsection<T>,IDisposable
+    public class ToastCollecion<T> : IToastModelCollsection<T>, IDisposable
     {
         readonly private ReaderWriterLockSlim _readerWriterLockSlim;
 
         readonly private ToastObservable<T> _toastObservable;
+
+        readonly private IList<IDisposable> _disposables;   
 
         private List<IToastModel<T>> _collection = new();
 
@@ -23,7 +25,7 @@ namespace BlazorToaster.Model
                 try
                 {
                     _readerWriterLockSlim.EnterReadLock();
-                    return _collection.Where(t=>t.State!=ToastState.Removed).Take(Configure.MaxToast);
+                    return _collection.Where(t => t.State != ToastState.Removed).Take(Configure.MaxToast);
                 }
                 finally
                 {
@@ -36,10 +38,11 @@ namespace BlazorToaster.Model
         {
             _readerWriterLockSlim = new ReaderWriterLockSlim();
             _toastObservable = new ToastObservable<T>();
+            _disposables = [];
             Configure = configure;
         }
 
-        public void Enqueue(T content)=>Enqueue(content,Configure.Duration);
+        public void Enqueue(T content) => Enqueue(content, Configure.Duration);
 
         public void Enqueue(T content, int closeTime)
         {
@@ -53,21 +56,23 @@ namespace BlazorToaster.Model
                 }
                 Remove(result);
             };
-            Add(new ToastModel<T>(guid, removeAction, content, closeTime));
+            var addModel = new ToastModel<T>(guid, removeAction, content, closeTime);
+            _disposables.Add(addModel.ChangeObservable.Subscribe(_ => _toastObservable.Run(default!)));
+            Add(addModel);
         }
-        
+
 
         public void Cancel(T content)
         {
             _collection.FirstOrDefault(t => Equals(t.Content, content))?.Cancel();
         }
 
-        public void Close(T content)
+        public async Task CloseAsync(T content)
         {
-            _collection.FirstOrDefault(t => Equals(t.Content, content))?.Close();
+            await (_collection.FirstOrDefault(t => Equals(t.Content, content))?.CloseAsync()??Task.CompletedTask);
         }
 
-        public void Remove(IToastModel<T> model)
+        public async void Remove(IToastModel<T> model)
         {
             if (_collection.Count == 0)
             {
@@ -76,7 +81,7 @@ namespace BlazorToaster.Model
             try
             {
                 _readerWriterLockSlim.EnterWriteLock();
-                var index=_collection.IndexOf(model);
+                var index = _collection.IndexOf(model);
                 _collection.RemoveAt(index);
             }
             finally
@@ -89,6 +94,10 @@ namespace BlazorToaster.Model
         public void Dispose()
         {
             RemoveAll();
+            foreach (var toastDisposable in _disposables)
+            {
+                toastDisposable.Dispose();
+            }
             _readerWriterLockSlim.Dispose();
         }
 

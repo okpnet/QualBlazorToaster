@@ -11,12 +11,10 @@
     <PackageProjectUrl>https://github.com/okpnet/QualBlazorToaster</PackageProjectUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>qtoaster</AssemblyName>
+    <PackageLicenseFile>License</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="https:\github.com\okpnet\QualBlazorToaster\blob\main\README.md" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -24,6 +22,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="License">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

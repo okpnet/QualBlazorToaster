@@ -1,11 +1,4 @@
-﻿using BlazorToaster.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BlazorToaster
+﻿namespace BlazorToaster.Core
 {
     public static class ToastExtension
     {
@@ -16,7 +9,7 @@ namespace BlazorToaster
                 return new ToastCollecion<T>(new ToastConfigure());
             }
 
-            public static IToastModelCollsection<T> CreateCollection<T>(ToastConfigure configure)
+            public static IToastModelCollsection<T> CreateCollecion<T>(ToastConfigure configure)
             {
                 return new ToastCollecion<T>(configure);
             }

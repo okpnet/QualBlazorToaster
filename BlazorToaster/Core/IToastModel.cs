@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorToaster.Model
+namespace BlazorToaster.Core
 {
-    public interface IToastModel<T>:IDisposable
+    public interface IToastModel<T> : IDisposable
     {
         Guid Id { get; }
+
         int ClosedTime { get; }
 
         T Content { get; }
@@ -21,7 +23,7 @@ namespace BlazorToaster.Model
 
         void Cancel();
 
-        void Close();
+        Task CloseAsync();
 
         Task StartAsync();
     }
