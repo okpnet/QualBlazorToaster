@@ -42,9 +42,9 @@ namespace BlazorToaster.Core
             Configure = configure;
         }
 
-        public void Enqueue(T content) => Enqueue(content, Configure.Duration);
+        public IToastArg<T> Enqueue(T content) => Enqueue(content, Configure.Duration);
 
-        public void Enqueue(T content, int closeTime)
+        public IToastArg<T> Enqueue(T content, int closeTime)
         {
             var guid = Guid.NewGuid();
             var removeAction = () =>
@@ -59,6 +59,7 @@ namespace BlazorToaster.Core
             var addModel = new ToastModel<T>(guid, removeAction, content, closeTime);
             _disposables.Add(addModel.ChangeObservable.Subscribe(_ => _toastObservable.Run(default!)));
             Add(addModel);
+            return addModel;
         }
 
 

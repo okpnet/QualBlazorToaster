@@ -104,10 +104,10 @@ namespace BlazorToaster.Core
         {
             _state = ToastState.Complete;
             _toastObservable.Run(Content);
-            await Task.Delay(100);
+            await Task.Delay(10);
             _state = ToastState.Removed;
             _toastObservable.Run(Content);
-            await Task.Delay(100);
+            await Task.Delay(500);
             Dispose();
         }
     }

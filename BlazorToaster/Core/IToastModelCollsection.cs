@@ -14,9 +14,9 @@ namespace BlazorToaster.Core
 
         IObservable<T> ChangeCollecitonObservable { get; }
 
-        void Enqueue(T content);
+        IToastArg<T> Enqueue(T content);
 
-        void Enqueue(T content, int closeTime);
+        IToastArg<T> Enqueue(T content, int closeTime);
 
         void Cancel(T content);
 
