@@ -3,9 +3,6 @@
 
 @inherits OwningComponentBase
 @typeparam TArgment
-<span>
-    @Model.State.ToString()
-</span>
 <output class="toast @activeClass">
     @ToastTemplate((IToastArg<TArgment>)Model)
 </output>

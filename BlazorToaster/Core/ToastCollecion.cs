@@ -72,7 +72,7 @@ namespace BlazorToaster.Core
             await (_collection.FirstOrDefault(t => Equals(t.Content, content))?.CloseAsync()??Task.CompletedTask);
         }
 
-        public async void Remove(IToastModel<T> model)
+        public void Remove(IToastModel<T> model)
         {
             if (_collection.Count == 0)
             {
@@ -82,6 +82,10 @@ namespace BlazorToaster.Core
             {
                 _readerWriterLockSlim.EnterWriteLock();
                 var index = _collection.IndexOf(model);
+                if(index == -1)
+                {
+                    return;
+                }
                 _collection.RemoveAt(index);
             }
             finally
