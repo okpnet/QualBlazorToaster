@@ -1,12 +1,5 @@
 ﻿using BlazorToaster.Observe;
 using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorToaster.Core
 {
@@ -61,6 +54,10 @@ namespace BlazorToaster.Core
 
         public async Task StartAsync()
         {
+            if (Presentation == PresentationMode.Event && _state == ToastState.Run)
+            {
+                return;
+            }
             try
             {
                 if (_state == ToastState.Stanby)
@@ -75,29 +72,18 @@ namespace BlazorToaster.Core
                     _toastObservable.Run(Content);
                     await Task.Delay(Configure.Duration, CancelToken);
                 }
-                if (_state == ToastState.Run)
+                if (Presentation == PresentationMode.Event)
                 {
-                    _state = ToastState.Stop;
-                    _toastObservable.Run(Content);
-                    await Task.Delay(ToasterDefine.DEFAULT_DELAY, CancelToken);
+                    return;
                 }
-                _state = ToastState.Delete;
-                _toastObservable.Run(Content);
             }
             catch (TaskCanceledException taskEx)
             {
-                _state = ToastState.Stanby;
-                _toastObservable.Run(Content);
-                return;
+                await HiddenAsync();
             }
             catch (Exception ex)
             {
                 throw;
-            }
-
-            if (CancelToken.IsCancellationRequested || Presentation==PresentationMode.Event)
-            {
-                return;
             }
 
             await HiddenAsync();
@@ -114,16 +100,6 @@ namespace BlazorToaster.Core
 
         public async Task CloseAsync()
         {
-            if (_state == ToastState.Stop || _state==ToastState.Delete)
-            {
-                return;
-            }
-
-            if (!_cancellationTokenSource.Token.IsCancellationRequested)
-            {
-                _cancellationTokenSource.Cancel();
-            }
-
             await HiddenAsync();
         }
 
@@ -134,14 +110,14 @@ namespace BlazorToaster.Core
 
         private async Task HiddenAsync()
         {
-            if(_state!=ToastState.Stop && _state != ToastState.Delete)
+            if (_state == ToastState.Run)
             {
                 _state = ToastState.Stop;
                 _toastObservable.Run(Content);
                 await Task.Delay(ToasterDefine.DEFAULT_DELAY, CancelToken);
-                _state = ToastState.Delete;
-                _toastObservable.Run(Content);
             }
+            _state = ToastState.Delete;
+            _toastObservable.Run(Content);
             Dispose();
         }
     }
