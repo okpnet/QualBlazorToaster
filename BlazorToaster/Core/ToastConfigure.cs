@@ -2,10 +2,8 @@
 
 namespace BlazorToaster.Core
 {
-    public class ToastConfigure
+    public class ToastConfigure: IToastConfigure
     {
-
-
         [Range(1, ToasterDefine.MAX_NUM_OF_TOASTS)]
         public int MaxToast { get; set; } = ToasterDefine.DEFAULT_NUM_OF_TOASTS;
 

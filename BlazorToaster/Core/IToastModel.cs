@@ -11,7 +11,7 @@ namespace BlazorToaster.Core
     {
         Guid Id { get; }
 
-        int ClosedTime { get; }
+        IToastConfigure Configure { get; }
 
         T Content { get; }
 

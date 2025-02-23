@@ -13,5 +13,6 @@ namespace BlazorToaster.Core
         public const int DEFAULT_DURAION = 3000;
         public const int DEFAULT_NUM_OF_TOASTS = 5;
         public const int MAX_NUM_OF_TOASTS = 30;
+        public const int DEFAULT_DELAY = 200;
     }
 }

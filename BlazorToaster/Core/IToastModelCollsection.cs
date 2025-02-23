@@ -16,7 +16,7 @@ namespace BlazorToaster.Core
 
         void Enqueue(T content);
 
-        void Enqueue(T content, int closeTime);
+        void Enqueue(T content, IToastConfigure configure);
 
         void Cancel(T content);
 

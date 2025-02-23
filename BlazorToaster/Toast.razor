@@ -3,7 +3,7 @@
 
 @inherits OwningComponentBase
 @typeparam TArgment
-<output class="toast @activeClass">
+<output class="toast @activeClass" >
     @ToastTemplate((IToastArg<TArgment>)Model)
 </output>
 
@@ -26,9 +26,9 @@
             }
             return Model.State switch
             {
-                ToastState.Stop=>"",
-                ToastState.Running=>"toast-is-active",
-                ToastState.Complete=>"",
+                ToastState.Start => "toast-slide-in",
+                ToastState.Run=>"toast-is-active",
+                ToastState.Stop => "toast-fade-out",
                 _=>""
             };
         }
@@ -41,14 +41,11 @@
             return;
         }
         _changeObservable = Model.ChangeObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
-        await Model.StartAsync();
-        await Task.Delay(10);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnAfterRenderAsync(firstRender);
-        if (Model.State==ToastState.Stop)
+        if (Model.State==ToastState.Stanby)
         {
             await Model.StartAsync();
             await Task.Delay(10);

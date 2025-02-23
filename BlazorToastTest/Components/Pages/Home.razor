@@ -25,7 +25,7 @@ Welcome to your new app.
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        modelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>(new ToastConfigure(){Duration=5000,MaxToast=10});
+        modelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>(new ToastConfigure(){Duration=5000,MaxToast=4});
     }
 
     void OnClick()

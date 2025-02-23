@@ -25,7 +25,7 @@ namespace BlazorToaster.Core
                 try
                 {
                     _readerWriterLockSlim.EnterReadLock();
-                    return _collection.Where(t => t.State != ToastState.Removed).Take(Configure.MaxToast);
+                    return _collection.Where(t => t.State != ToastState.Delete).Take(Configure.MaxToast);
                 }
                 finally
                 {
@@ -42,9 +42,9 @@ namespace BlazorToaster.Core
             Configure = configure;
         }
 
-        public void Enqueue(T content) => Enqueue(content, Configure.Duration);
+        public void Enqueue(T content) => Enqueue(content, Configure);
 
-        public void Enqueue(T content, int closeTime)
+        public void Enqueue(T content, IToastConfigure configure)
         {
             var guid = Guid.NewGuid();
             var removeAction = () =>
@@ -56,7 +56,7 @@ namespace BlazorToaster.Core
                 }
                 Remove(result);
             };
-            var addModel = new ToastModel<T>(guid, removeAction, content, closeTime);
+            var addModel = new ToastModel<T>(guid, removeAction, content, configure);
             _disposables.Add(addModel.ChangeObservable.Subscribe(_ => _toastObservable.Run(default!)));
             Add(addModel);
         }
@@ -110,7 +110,7 @@ namespace BlazorToaster.Core
             try
             {
                 _readerWriterLockSlim.EnterWriteLock();
-                foreach (var model in _collection.Where(t=>t.State==ToastState.Running || t.State==ToastState.Stop))
+                foreach (var model in _collection.Where(t=>t.State==ToastState.Run || t.State==ToastState.Stanby))
                 {
                     model.Dispose();
                 }

@@ -1,6 +1,7 @@
 ﻿using BlazorToaster.Observe;
 using Microsoft.AspNetCore.Components;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,11 +20,11 @@ namespace BlazorToaster.Core
 
         EventCallback _closeEvent = EventCallback.Empty;
 
-        ToastState _state = ToastState.Stop;
+        ToastState _state = ToastState.Stanby;
 
         public Guid Id { get; } = Guid.NewGuid();
 
-        public int ClosedTime { get; }
+        public IToastConfigure Configure { get; }
 
         public T Content { get; }
 
@@ -47,21 +48,52 @@ namespace BlazorToaster.Core
             }
         }
 
-        public ToastModel(Guid id, Action removeAction, T content, int cloosedTimer)
+        public ToastModel(Guid id, Action removeAction, T content, IToastConfigure configure)
         {
-            Id = id;
-            ClosedTime = cloosedTimer;
-            Content = content;
             _removeAction = removeAction;
             _toastObservable = new ToastObservable<T>();
+            _state = ToastState.Stanby;
+            Id = id;
+            Configure = configure;
+            Content = content;
             Presentation = PresentationMode.Auto;
         }
 
         public async Task StartAsync()
         {
-            _state = ToastState.Running;
-            _toastObservable.Run(Content);
-            await Task.Delay(ClosedTime, CancelToken);
+            try
+            {
+                if (_state == ToastState.Stanby)
+                {
+                    _state = ToastState.Start;
+                    _toastObservable.Run(Content);
+                    await Task.Delay(ToasterDefine.DEFAULT_DELAY, CancelToken);
+                }
+                if (_state == ToastState.Start)
+                {
+                    _state = ToastState.Run;
+                    _toastObservable.Run(Content);
+                    await Task.Delay(Configure.Duration, CancelToken);
+                }
+                if (_state == ToastState.Run)
+                {
+                    _state = ToastState.Stop;
+                    _toastObservable.Run(Content);
+                    await Task.Delay(ToasterDefine.DEFAULT_DELAY, CancelToken);
+                }
+                _state = ToastState.Delete;
+                _toastObservable.Run(Content);
+            }
+            catch (TaskCanceledException taskEx)
+            {
+                _state = ToastState.Stanby;
+                _toastObservable.Run(Content);
+                return;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
 
             if (CancelToken.IsCancellationRequested || Presentation==PresentationMode.Event)
             {
@@ -73,7 +105,7 @@ namespace BlazorToaster.Core
 
         public void Cancel()
         {
-            if (_cancellationTokenSource.Token.IsCancellationRequested || _state != ToastState.Running)
+            if (_cancellationTokenSource.Token.IsCancellationRequested || _state != ToastState.Run)
             {
                 return;
             }
@@ -82,7 +114,7 @@ namespace BlazorToaster.Core
 
         public async Task CloseAsync()
         {
-            if (_state == ToastState.Complete || _state==ToastState.Removed)
+            if (_state == ToastState.Stop || _state==ToastState.Delete)
             {
                 return;
             }
@@ -102,12 +134,14 @@ namespace BlazorToaster.Core
 
         private async Task HiddenAsync()
         {
-            _state = ToastState.Complete;
-            _toastObservable.Run(Content);
-            await Task.Delay(10);
-            _state = ToastState.Removed;
-            _toastObservable.Run(Content);
-            await Task.Delay(500);
+            if(_state!=ToastState.Stop && _state != ToastState.Delete)
+            {
+                _state = ToastState.Stop;
+                _toastObservable.Run(Content);
+                await Task.Delay(ToasterDefine.DEFAULT_DELAY, CancelToken);
+                _state = ToastState.Delete;
+                _toastObservable.Run(Content);
+            }
             Dispose();
         }
     }
