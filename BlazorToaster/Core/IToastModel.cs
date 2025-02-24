@@ -1,16 +1,17 @@
-﻿using BlazorToaster.Observe;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorToaster.Model
+namespace BlazorToaster.Core
 {
-    public interface IToastModel<T>
+    public interface IToastModel<T> : IDisposable
     {
         Guid Id { get; }
-        int ClosedTime { get; }
+
+        IToastConfigure Configure { get; }
 
         T Content { get; }
 
@@ -18,11 +19,11 @@ namespace BlazorToaster.Model
 
         CancellationToken CancelToken { get; }
 
-        ToastObservable<T> StateChangeObservable { get; }
+        IObservable<T> ChangeObservable { get; }
 
         void Cancel();
 
-        void Close();
+        Task CloseAsync();
 
         Task StartAsync();
     }

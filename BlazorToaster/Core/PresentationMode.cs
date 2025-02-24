@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorToaster.Model
+namespace BlazorToaster.Core
 {
-    public enum ToastState
+    public enum PresentationMode
     {
-        Stop,
-        Running,
-        Complete
+        Auto,
+        Event
     }
 }

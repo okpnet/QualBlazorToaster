@@ -1,69 +1,60 @@
-﻿@using BlazorToaster.Model
-@typeparam TArgment
+﻿@using BlazorToaster.Core
+@using BlazorToaster.Observe
 
 @inherits OwningComponentBase
-
-@if(Model is not null)
-{
-    <span>
-        @ToastTemplate(Model.Content)
-        <span>
-            @(Model.State)
-        </span>
-    </span>
-    <ouitoput class="toast @(Model.State==ToastState.Running? "toast-is-active" : "")">
-        @ToastTemplate(Model.Content)
-    </ouitoput>
-}
+@typeparam TArgment
+<output class="fG2SzWanufzP @activeClass">
+    @ToastTemplate((IToastArg<TArgment>)Model)
+</output>
 
 @code {
-    IDisposable? _disposable;
-
-    [Parameter]
-    public IToastModel<TArgment>? Model { get; set; } = default!;
+    IDisposable _changeObservable=default!;
 
     [Parameter,EditorRequired]
-    public RenderFragment<TArgment> ToastTemplate { get; set; } = default!;
+    public IToastModel<TArgment> Model { get; set; } = default!;
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     if (Model is not null)
-    //     {
-    //         if (_disposable is not null)
-    //         {
-    //             _disposable.Dispose();
-    //         }
-    //         _disposable = Model.StateChangeObservable.Subscribe(async _ => await InvokeAsync(Changes));
-    //         await Model.StartAsync();
-    //     }
-    // }
+    [Parameter, EditorRequired]
+    public RenderFragment<IToastArg<TArgment>> ToastTemplate { get; set; } = default!;
 
-    protected override async Task OnParametersSetAsync()
+    string activeClass
     {
-        if (Model is not null)
+        get
         {
-            if (_disposable is not null)
+            if(Model is null)
             {
-                _disposable.Dispose();
+                return "";
             }
-            _disposable = Model.StateChangeObservable.Subscribe(async _ => await InvokeAsync(Changes));
-            await Model.StartAsync();
+            return Model.State switch
+            {
+                ToastState.Start => "fG2SzWanufzP-slide-in",
+                ToastState.Run => "fG2SzWanufzP-is-active",
+                ToastState.Stop => "fG2SzWanufzP-fade-out",
+                _=>""
+            };
         }
     }
 
-    protected void Changes()
+    protected override void OnInitialized()
     {
-        StateHasChanged();
+        if(Model is null)
+        {
+            return;
+        }
+        _changeObservable = Model.ChangeObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Model.State==ToastState.Stanby)
+        {
+            await Model.StartAsync();
+            await Task.Delay(10);
+        }
     }
 
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (_disposable is not null)
-        {
-            _disposable.Dispose();
-        }
+        _changeObservable.Dispose();
     }
-
-
 }

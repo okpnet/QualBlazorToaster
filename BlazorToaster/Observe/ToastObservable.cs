@@ -8,82 +8,71 @@ namespace BlazorToaster.Observe
 {
     public class ToastObservable<T> : IObservable<T>
     {
+        readonly ReaderWriterLockSlim _readerWriterLockSlim;
 
-        List<IObserver<T>> _observers = [];
+        readonly IList<IObserver<T>> _observablelist;
 
-        public IDisposable Subscribe(Action<T> onNext)
+        public ToastObservable()
         {
-            var observer = new ToastObserver(onNext);
-            return Subscribe(observer);
+            _observablelist = new List<IObserver<T>>();
+            _readerWriterLockSlim = new ReaderWriterLockSlim();
         }
+
+        public IDisposable Subscribe(Action<T> observer)
+        {
+            return Subscribe(new ToastObserver<T>(observer));
+        }
+
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            _observers.Add(observer);
-            return new UnToastObserver(() => _observers.Remove(observer));
+            try
+            {
+                _readerWriterLockSlim.EnterWriteLock();
+                _observablelist.Add(observer);
+                return new ToastObserverDiposable(() =>Remove(observer));
+            }
+            finally
+            {
+                _readerWriterLockSlim.ExitWriteLock();
+            }
         }
 
         public void Run(T value)
         {
-            foreach (var observer in _observers.ToList())
+            try
             {
-                observer.OnNext(value);
+                _readerWriterLockSlim.EnterReadLock();
+                foreach(var observer in _observablelist)
+                {
+                    observer.OnNext(value);
+                }
             }
-            //if (_observers.Count == 0)
-            //{
-            //    return;
-            //}
-
-            //var enumrator=_observers.GetEnumerator();
-            //while (enumrator.MoveNext())
-            //{
-            //    var observerr=enumrator.Current;
-            //    if(observerr is not null)
-            //    {
-            //        observerr.OnNext(value);
-            //    }
-            //}
-        }
-        public class ToastObserver : IObserver<T>
-        {
-            readonly Action<T> _onNext;
-
-            public ToastObserver(Action<T> onNext)
+            finally
             {
-                _onNext = onNext;
-            }
-
-            public void OnCompleted()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnError(Exception error)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnNext(T value)
-            {
-                _onNext(value);
+                _readerWriterLockSlim.ExitReadLock();
             }
         }
-        public class UnToastObserver : IDisposable
+
+        private void Remove(IObserver<T> observer)
         {
-            readonly Action remove;
-
-            public UnToastObserver(Action remove)
+            var index = _observablelist.IndexOf(observer);
+            if (0 > index)
             {
-                this.remove = remove;
+                return;
             }
-
-            public void Dispose()
-            {
-                remove.Invoke();
-            }
+            _observablelist.RemoveAt(index);
         }
     }
 
-
-
-
+    public static class ToastObservableExtension
+    {
+        public static IDisposable Subscribe<T>(this IObservable<T> observable,Action<T> onNext)
+        {
+            if(observable is not ToastObservable<T> tostObservable)
+            {
+                throw new NotImplementedException();
+            }
+            return tostObservable.Subscribe(onNext);
+        }
+    }
 }

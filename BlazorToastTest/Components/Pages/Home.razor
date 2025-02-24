@@ -1,34 +1,124 @@
 ﻿@using BlazorToaster
-@using BlazorToaster.Model
-@using BlazorToaster.Extension
+@using BlazorToaster.Core
 @page "/"
 
-<h1>Hello, world!</h1>
+<h1>Toast</h1>
+<h2>Default</h2>
+<div >
+    <button class="button" @onclick="OnDefaultAddClick">Add toast</button>
+</div>
+
+<h2>Cancel</h2>
+<div>
+    <span>@cancelMessage</span>
+</div>
+<div>
+    <button class="button" @onclick="OnCancelActionAsync">Add 8 toast ,then cancel </button>
+</div>
+
+<h2>Running of after close</h2>
+<div>
+    <button class="button" @onclick="OnRunningAfterCloseAdd">Add close toast </button>
+</div>
+<div>
+    <button class="button" @onclick="OnOnRunningAfterCloseCloseAsync">close toast</button>
+</div>
 
 Welcome to your new app.
 
-<button class="button" @onclick="AddToast">Add</button>
-
-<ToastGroup Collection="collection">
+<ToastContainer Collection="defaultModelCollsection">
     <ToastTemplate Context="model">
-        <p>
-            @model.Message
-        </p>
+        <div class="notification is-info">
+            <button class="delete" @onclick="model.CloseEvent"></button>
+            ID: @model.Content.Id.ToString()
+        </div>
     </ToastTemplate>
-</ToastGroup>
+</ToastContainer>
+
+<ToastContainer Collection="runningAfterCloseModelCollsection">
+    <ToastTemplate Context="model">
+        @{
+            if (model.Content.IsEvent)
+            {
+                model.Presentation = PresentationMode.Event;
+                closeEvent=model.CloseEvent;
+            }
+            else
+            {
+                model.Presentation = PresentationMode.Auto;
+                closeEvent = EventCallback.Empty;
+            }
+        }
+        <div class="notification @(model.Content.IsEvent? "is-link":"is-info")">
+            @if (!model.Content.IsEvent)
+            {
+                <button class="delete" @onclick="model.CloseEvent"></button>
+            }
+            ID: @model.Content.Id.ToString()
+        </div>
+    </ToastTemplate>
+</ToastContainer>
 
 @code{
-    IToastModelCollsection<Model.MorningBread> collection = ToastExtension.Factory.Create<Model.MorningBread>(5000);
+
+    IToastModelCollsection<Model.ToastMessage> defaultModelCollsection;
+
+    IToastModelCollsection<Model.ToastMessage> runningAfterCloseModelCollsection;
+
+    string cancelMessage = "";
+
+    EventCallback closeEvent=EventCallback.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        defaultModelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>(new ToastConfigure());
+        runningAfterCloseModelCollsection = ToastExtension.Factory.CreateCollecion<Model.ToastMessage>(new ToastConfigure(){MaxToast=1});
+    }
+    /// <summary>
+    /// default  add toast action
+    /// </summary>
+    void OnDefaultAddClick()
+    {
+        defaultModelCollsection.Enqueue(new());
+    }
+    /// <summary>
+    /// Add 8 slices of toast, then cancel
+    /// </summary>
+    /// <returns></returns>
+    async Task OnCancelActionAsync()
+    {
+        defaultModelCollsection.Cancel();
+
+        var rnd = new Random(DateTime.Now.Microsecond);
+        cancelMessage = "Cancel all runninng toast";
+
+        for(var index = 0; 8 > index; index++)
+        {
+            await Task.Delay( rnd.Next(1000) + 200 );
+            cancelMessage = $"add toast {index}/8";
+            defaultModelCollsection.Enqueue(new());
+            StateHasChanged();
+        }
+
+        await Task.Delay(1000);
+        defaultModelCollsection.Cancel();
+        cancelMessage = "Cancel all runninng toast";
     }
 
-    private void AddToast()
+    void OnRunningAfterCloseAdd()
     {
-        var addModel = new Model.MorningBread() { Message = Guid.NewGuid().ToString() };
+        runningAfterCloseModelCollsection.Enqueue(new(){IsEvent=true});
+        runningAfterCloseModelCollsection.Enqueue(new(){IsEvent=false});//stanby
+        StateHasChanged();
+    }
 
-        collection.Enqueue(addModel);
+    async Task OnOnRunningAfterCloseCloseAsync()
+    {
+        if (closeEvent.HasDelegate)
+        {
+            await closeEvent.InvokeAsync();
+            StateHasChanged();
+        }
     }
 }

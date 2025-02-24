@@ -1,0 +1,43 @@
+﻿@using BlazorToaster.Core
+@using BlazorToaster.Observe
+@inherits OwningComponentBase
+@typeparam TArgment
+
+<section class="LUnSuUWrH4vq">
+    @foreach (var toast in Collection.EnableToasts)
+    {
+        <Toast ToastTemplate="ToastTemplate" Model="@toast"></Toast>
+    }
+</section>
+
+@code {
+    IDisposable _changeObservable = default!;
+
+    [Parameter]
+    public int DefaultCloseTiem { get; set; }
+
+    [Parameter]
+    public ToastConfigure Configure { get; set; } = new();
+
+    [Parameter]
+    public IToastModelCollsection<TArgment> Collection { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment<IToastArg<TArgment>> ToastTemplate { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (Collection is null)
+        {
+            Collection = new ToastCollecion<TArgment>(Configure);
+        }
+        _changeObservable = Collection.ChangeCollecitonObservable.Subscribe(async _ => await InvokeAsync(StateHasChanged));
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        _changeObservable.Dispose();
+    }
+}

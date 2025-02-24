@@ -4,8 +4,17 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>QualBlazorToaster</PackageId>
+    <Title>QualBlazorToaster</Title>
+    <Authors>hayato takahashi</Authors>
+    <RepositoryUrl>https://github.com/okpnet/QualBlazorToaster</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/okpnet/QualBlazorToaster</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyName>qtoaster</AssemblyName>
+    <PackageLicenseFile>License</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -13,6 +22,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="License">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
