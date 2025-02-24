@@ -1,17 +1,17 @@
 ﻿@using BlazorToaster.Core
 @using BlazorToaster.Observe
 @inherits OwningComponentBase
-@typeparam TArgment 
+@typeparam TArgment
 
-<section class="toast-group">
-    @foreach(var toast in Collection.EnableToasts)
+<section class="LUnSuUWrH4vq">
+    @foreach (var toast in Collection.EnableToasts)
     {
         <Toast ToastTemplate="ToastTemplate" Model="@toast"></Toast>
     }
 </section>
 
 @code {
-    IDisposable _changeObservable=default!;
+    IDisposable _changeObservable = default!;
 
     [Parameter]
     public int DefaultCloseTiem { get; set; }
@@ -28,7 +28,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        if(Collection is null)
+        if (Collection is null)
         {
             Collection = new ToastCollecion<TArgment>(Configure);
         }

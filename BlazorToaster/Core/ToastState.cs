@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace BlazorToaster.Core
 {
-    public enum ToastState
+    public enum ToastState:int
     {
-        Stanby,
-        Start,
-        Run,
-        Stop,
-        Delete,
+        Stanby=0x0,
+        Start=0x1,
+        Run=0x2,
+        Stop=0x3,
+        Delete=0x4,
     }
 }

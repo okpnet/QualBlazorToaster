@@ -3,7 +3,7 @@
 
 @inherits OwningComponentBase
 @typeparam TArgment
-<output class="toast @activeClass" >
+<output class="fG2SzWanufzP @activeClass">
     @ToastTemplate((IToastArg<TArgment>)Model)
 </output>
 
@@ -26,15 +26,15 @@
             }
             return Model.State switch
             {
-                ToastState.Start => "toast-slide-in",
-                ToastState.Run=>"toast-is-active",
-                ToastState.Stop => "toast-fade-out",
+                ToastState.Start => "fG2SzWanufzP-slide-in",
+                ToastState.Run => "fG2SzWanufzP-is-active",
+                ToastState.Stop => "fG2SzWanufzP-fade-out",
                 _=>""
             };
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if(Model is null)
         {

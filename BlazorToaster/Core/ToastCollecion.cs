@@ -61,10 +61,41 @@ namespace BlazorToaster.Core
             Add(addModel);
         }
 
+        public void Cancel()
+        {
+            if (_collection.Count == 0)
+            {
+                return;
+            }
+            try
+            {
+                _readerWriterLockSlim.EnterReadLock();
+                foreach(var toastModel in _collection.Where(t=> (int)t.State>(int)ToastState.Stanby && (int)ToastState.Stop>(int)t.State))
+                {
+                    toastModel.Cancel();
+                }
+            }
+            finally
+            {
+                _readerWriterLockSlim.ExitReadLock();
+            }
+        }
 
         public void Cancel(T content)
         {
-            _collection.FirstOrDefault(t => Equals(t.Content, content))?.Cancel();
+            if (_collection.Count == 0)
+            {
+                return;
+            }
+            try
+            {
+                _readerWriterLockSlim.EnterReadLock();
+                _collection.FirstOrDefault(t => Equals(t.Content, content))?.Cancel();
+            }
+            finally
+            {
+                _readerWriterLockSlim.ExitReadLock();
+            }  
         }
 
         public async Task CloseAsync(T content)

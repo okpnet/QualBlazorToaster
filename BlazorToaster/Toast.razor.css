@@ -1,4 +1,4 @@
-﻿.toast {
+﻿.fG2SzWanufzP {
     all: unset;
     --_travel-distance: 0;
     padding-right: 2.5rem;
@@ -7,18 +7,18 @@
     opacity: 0;
 }
 
-.toast.toast-is-active {
-    visibility: visible;
-    opacity: 0.9;
-}
+    .fG2SzWanufzP.fG2SzWanufzP-is-active {
+        visibility: visible;
+        opacity: 0.9;
+    }
 
-    .toast.toast-slide-in {
+    .fG2SzWanufzP.fG2SzWanufzP-slide-in {
         visibility: visible;
         opacity: 0.9;
         animation: slide-in 0.3s ease, fade-in 0.3s ease;
     }
 
-    .toast.toast-fade-out {
+    .fG2SzWanufzP.fG2SzWanufzP-fade-out {
         opacity: 0.9;
         animation: fade-out 0.3s ease;
         animation-fill-mode: forwards; /* アニメーション後に透明のまま維持 */
@@ -48,7 +48,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .toast {
+    .fG2SzWanufzP {
         --_travel-distance: 5vh;
     }
 }

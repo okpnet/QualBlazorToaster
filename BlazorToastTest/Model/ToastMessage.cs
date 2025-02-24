@@ -10,6 +10,8 @@ namespace BlazorToastTest.Model
     {
         public Guid Id { get; set; }
 
+        public bool IsEvent { get; set; }
+
         public ToastMessage()
         {
             Id=Guid.NewGuid();

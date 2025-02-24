@@ -18,6 +18,8 @@ namespace BlazorToaster.Core
 
         void Enqueue(T content, IToastConfigure configure);
 
+        void Cancel();
+
         void Cancel(T content);
 
         Task CloseAsync(T content);
